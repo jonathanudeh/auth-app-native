@@ -6,17 +6,22 @@ export async function authenticate(mode, email, password) {
   // signUp?key=
   const url = `${BASE_URL}${mode}?key=${API_KEY}`;
 
-  await axios.post(url, {
+  const response = await axios.post(url, {
     email,
     password,
     returnSecureToken: true,
   });
+
+  const token = response.data.idToken;
+  return token;
 }
 
 export async function createUser(email, password) {
-  await authenticate("signup", email, password);
+  const token = await authenticate("signup", email, password);
+  return token;
 }
 
-export async function login(email, password) {
-  await authenticate("signinWithPassword", email, password);
+export function login(email, password) {
+  // we could return the token by leaving the func synchronous just return the authenticate func or do it like in the createUser func
+  return authenticate("signinWithPassword", email, password);
 }
