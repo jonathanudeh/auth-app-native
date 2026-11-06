@@ -7,7 +7,7 @@ import SignupScreen from "./screens/SignupScreen";
 import WelcomeScreen from "./screens/WelcomeScreen";
 import { Colors } from "./constants/styles";
 import AuthContextProvider, { AuthContext } from "./store/authContext";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import IconButton from "./components/ui/IconButton";
 
 const Stack = createNativeStackNavigator();
@@ -69,12 +69,36 @@ function Navigation() {
   );
 }
 
+function Root() {
+  const [isTryingToLogin, setIsTryingToLogin] = useState(true);
+  const authCtx = useContext(AuthContext);
+
+  useEffect(() => {
+    async function fetchToken() {
+      setIsTryingToLogin(true);
+      const storedToken = await AsyncStorage.getItem("token");
+
+      storedToken && authCtx.authenticate(storedToken);
+
+      setIsTryingToLogin(false);
+    }
+
+    fetchToken();
+  }, []);
+
+  if (isTryingToLogin) {
+    return <AppLoading />;
+  }
+
+  return <Navigation />;
+}
+
 export default function App() {
   return (
     <>
       <StatusBar style="light" />
       <AuthContextProvider>
-        <Navigation />
+        <Root />
       </AuthContextProvider>
     </>
   );
